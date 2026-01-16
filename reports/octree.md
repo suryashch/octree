@@ -1,8 +1,10 @@
 # Octree
 
-How are Video Games able to render vast worlds, containing thousands of individual 3D objects with crystal clear graphics? How does the K-Nearest Neighbors algorithm make lightning fast predictions based on training data? And how do mechanical engineers model the airflow over the wing of an F-35 fighter jet, with impeccable precision? The answer? An `Octree`.
+How are Video Games able to render vast worlds, with crystal clear graphics? How does Youtube know your watch preferences, often better than you do? And how do scientists model precise airflow over the wing of a jet? These 3 seemingly unrelated fields actually have a common data science tool- the `Octree`.
 
-An `Octree` is a data structure used universally by engineers, data scientists, and game developers to retrieve vast amounts of spatial data.
+![Octree Cover Photo](../public/img/octree-cover.png)
+
+An `Octree` is a data structure used for spatial querying.
 
 
 ## What is an Octree
