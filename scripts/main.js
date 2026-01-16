@@ -10,7 +10,7 @@ const colorMap = {
     4: '#bbbbbb'
 };
 
-const mesh_pos = [4,6,5];
+const mesh_pos = [3,3,3];
 
 const radius = 0.5;
 
