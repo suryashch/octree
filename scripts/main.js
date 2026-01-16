@@ -12,17 +12,21 @@ const colorMap = {
 
 const mesh_pos = [3,3,3];
 
-const radius = 0.5;
+let radius = 0.5;
 
 const xSlider = document.getElementById('x-slider');
 const ySlider = document.getElementById('y-slider');
 const zSlider = document.getElementById('z-slider');
+const rSlider = document.getElementById('r-slider')
 
 const xValue = document.getElementById('x-value');
 const yValue = document.getElementById('y-value');
 const zValue = document.getElementById('z-value');
+const rValue = document.getElementById('r-value')
 
 let mesh = null;
+
+const scene = new THREE.Scene();
 
 function drawCube( bounds, color ) {
     const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
@@ -143,6 +147,32 @@ function drawOctree( mesh_pos, o_tree, threshold, colorMap, level=0 ){
 
 const ot = makeOctree( 0,8,8,0,0,8,5 )
 
+drawOctree(mesh_pos, ot, radius, colorMap);
+
+function clearOctreeVisuals() {
+    const objectsToRemove = [];
+    scene.children.forEach(child => {
+        if (child instanceof THREE.LineSegments) {
+            objectsToRemove.push(child);
+        }
+    });
+    objectsToRemove.forEach(obj => {
+        scene.remove(obj);
+        obj.geometry.dispose();
+        obj.material.dispose();
+    });
+}
+
+function updateVisualization() {
+    clearOctreeVisuals();
+
+    drawOctree(mesh_pos, ot, radius, colorMap);
+    
+    if (mesh) {
+        mesh.position.set(mesh_pos[0], mesh_pos[1], mesh_pos[2]);
+    }
+}
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -151,8 +181,6 @@ renderer.setClearColor("#262837");
 renderer.setPixelRatio(window.devicePixelRatio);
 
 document.body.appendChild(renderer.domElement);
-
-const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 camera.position.set(15,12,-12);
@@ -172,41 +200,12 @@ const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
 light_2.position.set(10,10,10)
 scene.add(light_2);
 
-
-drawOctree(mesh_pos, ot, radius, colorMap);
-
-function clearOctreeVisuals() {
-    const objectsToRemove = [];
-    scene.children.forEach(child => {
-        if (child instanceof THREE.LineSegments) {
-            objectsToRemove.push(child);
-        }
-    });
-    objectsToRemove.forEach(obj => {
-        scene.remove(obj);
-        obj.geometry.dispose();
-        obj.material.dispose();
-    });
-}
-
-
 const loader = new GLTFLoader().setPath('public/models/');
 loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
     mesh = gltf.scene;
     mesh.position.set(3, 3, 3);
     scene.add(mesh);
 })
-
-function updateVisualization() {
-    clearOctreeVisuals();
-
-    drawOctree(mesh_pos, ot, radius, colorMap);
-    
-    if (mesh) {
-        mesh.position.set(mesh_pos[0], mesh_pos[1], mesh_pos[2]);
-    }
-}
-
 
 xSlider.addEventListener('input', (e) => {
     mesh_pos[0] = parseFloat(e.target.value);
@@ -226,13 +225,16 @@ zSlider.addEventListener('input', (e) => {
     updateVisualization();
 });
 
+rSlider.addEventListener('input', (e) => {
+    radius = parseFloat(e.target.value);
+    rValue.textContent = radius;
+    updateVisualization();
+});
 
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
-    console.log(camera.position)
-    console.log(controls.target)
 };
 
 animate();
