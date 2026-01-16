@@ -215,14 +215,14 @@ xSlider.addEventListener('input', (e) => {
 });
 
 ySlider.addEventListener('input', (e) => {
-    mesh_pos[1] = parseFloat(e.target.value);
-    yValue.textContent = mesh_pos[1].toFixed(1);
+    mesh_pos[2] = parseFloat(e.target.value);
+    yValue.textContent = mesh_pos[2].toFixed(1);
     updateVisualization();
 });
 
 zSlider.addEventListener('input', (e) => {
-    mesh_pos[2] = parseFloat(e.target.value);
-    zValue.textContent = mesh_pos[2].toFixed(1);
+    mesh_pos[1] = parseFloat(e.target.value);
+    zValue.textContent = mesh_pos[1].toFixed(1);
     updateVisualization();
 });
 
