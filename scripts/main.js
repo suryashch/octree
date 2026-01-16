@@ -155,17 +155,17 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(40,10,25);
+camera.position.set(15,12,-12);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = false;
 controls.enablePan = true;
 controls.minDistance=1;
-controls.maxDistance=20;
+controls.maxDistance=25;
 controls.minPolarAngle=0.5;
 controls.maxPolarAngle=1.5;
 controls.autoRotate=false;
-controls.target = new THREE.Vector3(0,0,0);
+controls.target = new THREE.Vector3(3.2,2,5.4);
 controls.update()
 
 const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
@@ -190,13 +190,10 @@ function clearOctreeVisuals() {
 }
 
 function updateVisualization() {
-    // Clear old octree visuals
     clearOctreeVisuals();
-    
-    // Redraw with new position
+
     drawOctree(mesh_pos, ot, radius, colorMap);
     
-    // Update mesh position
     if (mesh) {
         mesh.position.set(mesh_pos[0], mesh_pos[1], mesh_pos[2]);
     }
@@ -237,6 +234,8 @@ function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
+    console.log(camera.position)
+    console.log(controls.target)
 };
 
 animate();
