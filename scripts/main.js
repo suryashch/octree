@@ -193,9 +193,7 @@ function clearOctreeVisuals() {
 const loader = new GLTFLoader().setPath('public/models/');
 loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
     mesh = gltf.scene;
-    const [ mesh_x, mesh_y, mesh_z ] = mesh_pos
-
-    mesh.position.set(mesh_x, mesh_y, mesh_z);
+    mesh.position.set(3, 3, 3);
     scene.add(mesh);
 })
 
