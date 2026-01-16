@@ -10,7 +10,19 @@ const colorMap = {
     4: '#bbbbbb'
 };
 
-const mesh_pos = [4,3,3]
+const mesh_pos = [4,6,5];
+
+const radius = 0.5;
+
+const xSlider = document.getElementById('x-slider');
+const ySlider = document.getElementById('y-slider');
+const zSlider = document.getElementById('z-slider');
+
+const xValue = document.getElementById('x-value');
+const yValue = document.getElementById('y-value');
+const zValue = document.getElementById('z-value');
+
+let mesh = null;
 
 function drawCube( bounds, color ) {
     const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
@@ -160,17 +172,66 @@ const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
 light_2.position.set(10,10,10)
 scene.add(light_2);
 
+
+drawOctree(mesh_pos, ot, radius, colorMap);
+
+function clearOctreeVisuals() {
+    const objectsToRemove = [];
+    scene.children.forEach(child => {
+        if (child instanceof THREE.LineSegments) {
+            objectsToRemove.push(child);
+        }
+    });
+    objectsToRemove.forEach(obj => {
+        scene.remove(obj);
+        obj.geometry.dispose();
+        obj.material.dispose();
+    });
+}
+
+function updateVisualization() {
+    // Clear old octree visuals
+    clearOctreeVisuals();
+    
+    // Redraw with new position
+    drawOctree(mesh_pos, ot, radius, colorMap);
+    
+    // Update mesh position
+    if (mesh) {
+        mesh.position.set(mesh_pos[0], mesh_pos[1], mesh_pos[2]);
+    }
+}
+
 const loader = new GLTFLoader().setPath('public/models/');
 loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
-    const mesh = gltf.scene;
+    mesh = gltf.scene;
     const [ mesh_x, mesh_y, mesh_z ] = mesh_pos
 
     mesh.position.set(mesh_x, mesh_y, mesh_z);
     scene.add(mesh);
 })
 
+// Slider event listeners
+xSlider.addEventListener('input', (e) => {
+    mesh_pos[0] = parseFloat(e.target.value);
+    xValue.textContent = mesh_pos[0].toFixed(1);
+    updateVisualization();
+});
 
-drawOctree(mesh_pos, ot, 0.5, colorMap);
+// Slider event listeners
+ySlider.addEventListener('input', (e) => {
+    mesh_pos[1] = parseFloat(e.target.value);
+    yValue.textContent = mesh_pos[1].toFixed(1);
+    updateVisualization();
+});
+
+// Slider event listeners
+zSlider.addEventListener('input', (e) => {
+    mesh_pos[2] = parseFloat(e.target.value);
+    zValue.textContent = mesh_pos[2].toFixed(1);
+    updateVisualization();
+});
+
 
 function animate() {
     requestAnimationFrame(animate);
