@@ -1,6 +1,7 @@
 # Octree
 
-A quick visualizer to demonstrate how Octree querying works in 3D scenes.
+A lightweight visualizer for an Octree spatial querying system.
 
 [Demo](https://suryashch.github.io/octree/)
+
 
