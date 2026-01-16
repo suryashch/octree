@@ -1,16 +1,19 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const colorMap = new Map([
-    [0, '#07222f'],
-    [1, '#E82C2C'],
-    [2, '#219827'],
-    [3, '#3FDCFB'],
-    [4, '#bbbbbb']
-]);
+const colorMap = {
+    0: '#0f5071',
+    1: '#E82C2C',
+    2: '#219827',
+    3: '#3FDCFB',
+    4: '#bbbbbb'
+};
 
-function drawCube( coords, color ) {
-    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = coords
+const mesh_pos = [4,3,3]
+
+function drawCube( bounds, color ) {
+    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
 
     const l = x_r - x_l;
     const b = y_t - y_b;
@@ -19,7 +22,7 @@ function drawCube( coords, color ) {
     const geometry = new THREE.BoxGeometry( l,b,h );
     const edges = new THREE.EdgesGeometry( geometry );
     const line = new THREE.LineSegments( edges, new THREE.MeshBasicMaterial({
-        color : color
+        color: color
     }) );
     line.position.set(  x_l + (x_r-x_l)/2, y_b + (y_t-y_b)/2, z_f + (z_b-z_f)/2 );
     scene.add( line );
@@ -46,6 +49,85 @@ function makeOctree( x_l, x_r, y_t, y_b, z_f, z_b, depth ) {
 
     return octree
 };
+
+function isIntersecting( mesh_pos, bounds,threshold ){
+    const [ camera_x, camera_y, camera_z ] = mesh_pos
+    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
+
+    let closest_x = 0
+    let closest_y = 0
+    let closest_z = 0
+
+    if ((x_l < camera_x) && (camera_x < x_r) && (y_b < camera_y) && (camera_y < y_t) && (z_b < camera_z) && (camera_z < z_b)){
+        return true
+
+    } else {
+        closest_x = Math.max(x_l, Math.min(camera_x, x_r))
+        closest_y = Math.max(y_b, Math.min(camera_y, y_t))
+        closest_z = Math.max(z_f, Math.min(camera_z, z_b))
+    }
+
+    const curr_dist = (closest_x - camera_x)**2 + (closest_y - camera_y)**2 + (closest_z - camera_z)**2
+
+    if (curr_dist < threshold**2){
+        return true
+    } else {
+        return false
+    }
+}
+
+function drawOctree( mesh_pos, o_tree, threshold, colorMap, level=0 ){
+    
+    if (isIntersecting(mesh_pos, o_tree.get("bounds"), threshold )){
+        
+        drawCube( o_tree.get("bounds"), colorMap[level]);
+        
+        if (o_tree.get(0).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(0), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        
+        if (o_tree.get(1).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(1), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+
+        if (o_tree.get(2).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(2), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        
+        if (o_tree.get(3).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(3), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        if (o_tree.get(4).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(4), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        if (o_tree.get(5).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(5), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        if (o_tree.get(6).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(6), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        if (o_tree.get(7).has("bounds")) {
+            drawOctree( mesh_pos, o_tree.get(7), threshold, colorMap, level+1);
+        } else {
+            return
+        }
+        
+    }
+}
 
 const ot = makeOctree( 0,8,8,0,0,8,5 )
 
@@ -78,38 +160,17 @@ const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
 light_2.position.set(10,10,10)
 scene.add(light_2);
 
-const gridHelper = new THREE.GridHelper( 100, 50 ); // ( size, divisions )
-// scene.add( gridHelper );
+const loader = new GLTFLoader().setPath('public/models/');
+loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
+    const mesh = gltf.scene;
+    const [ mesh_x, mesh_y, mesh_z ] = mesh_pos
 
-// for (let i=0; i<8; i++){
-//     for (let j=0; j<8; j++){
-//         for (let k=0; k<8; k++){
-//             for (let l=0; l<8; l++){
-//                 drawCube( ot.get(i).get(j).get(k).get(l).get("bounds"), "#C2C2C2");
-//             }
-//         }
-//     }
-// }
+    mesh.position.set(mesh_x, mesh_y, mesh_z);
+    scene.add(mesh);
+})
 
-for (let i=0; i<8; i++){
-    for (let j=0; j<8; j++){
-        for (let k=0; k<8; k++){
-            drawCube( ot.get(i).get(j).get(k).get("bounds"), "#3FDCFB");
-        }
-    }
-}
 
-for (let i=0; i<8; i++){
-    for (let j=0; j<8; j++){
-        drawCube( ot.get(i).get(j).get("bounds"), "#2AEA33");
-    }
-}
-
-for (let i=0; i<8; i++){
-    drawCube( ot.get(i).get("bounds"), "#E82C2C");
-}
-
-drawCube( ot.get("bounds"), "#1A78A2")
+drawOctree(mesh_pos, ot, 0.5, colorMap);
 
 function animate() {
     requestAnimationFrame(animate);
