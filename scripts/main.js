@@ -189,6 +189,16 @@ function clearOctreeVisuals() {
     });
 }
 
+
+const loader = new GLTFLoader().setPath('public/models/');
+loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
+    mesh = gltf.scene;
+    const [ mesh_x, mesh_y, mesh_z ] = mesh_pos
+
+    mesh.position.set(mesh_x, mesh_y, mesh_z);
+    scene.add(mesh);
+})
+
 function updateVisualization() {
     clearOctreeVisuals();
 
@@ -199,14 +209,6 @@ function updateVisualization() {
     }
 }
 
-const loader = new GLTFLoader().setPath('public/models/');
-loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
-    mesh = gltf.scene;
-    const [ mesh_x, mesh_y, mesh_z ] = mesh_pos
-
-    mesh.position.set(mesh_x, mesh_y, mesh_z);
-    scene.add(mesh);
-})
 
 xSlider.addEventListener('input', (e) => {
     mesh_pos[0] = parseFloat(e.target.value);
