@@ -208,21 +208,18 @@ loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
     scene.add(mesh);
 })
 
-// Slider event listeners
 xSlider.addEventListener('input', (e) => {
     mesh_pos[0] = parseFloat(e.target.value);
     xValue.textContent = mesh_pos[0].toFixed(1);
     updateVisualization();
 });
 
-// Slider event listeners
 ySlider.addEventListener('input', (e) => {
     mesh_pos[1] = parseFloat(e.target.value);
     yValue.textContent = mesh_pos[1].toFixed(1);
     updateVisualization();
 });
 
-// Slider event listeners
 zSlider.addEventListener('input', (e) => {
     mesh_pos[2] = parseFloat(e.target.value);
     zValue.textContent = mesh_pos[2].toFixed(1);

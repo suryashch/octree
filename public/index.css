@@ -49,13 +49,39 @@ canvas {
     font-weight: bold;
 }
 
-h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
+h1 {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    margin: 0;
+    padding: 15px 30px;
+    background: rgba(38, 40, 55, 0.85);
+    backdrop-filter: blur(10px);
     color: #ffffff;
-    font-size: 20px;
-    border-bottom: 2px solid #3FDCFB;
-    padding-bottom: 8px;
+    font-size: 40px;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 100;
+    letter-spacing: 1px;
+    border-left: 4px solid #3FDCFB;  /* Accent border using your cyan color */
+}
+
+h2 {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    padding: 15px 30px;
+    background: rgba(38, 40, 55, 0.85);
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 100;
+    letter-spacing: 1px;
+    border-left: 4px solid #3FDCFB;  /* Accent border using your cyan color */
 }
 
 h3 {
