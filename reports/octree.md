@@ -2,7 +2,7 @@
 
 How are modern video games able to render vast worlds, with crystal clear graphics? How does YouTube know your watch preferences- often better than you do? And how do engineers model precise airflow over complex wing shapes on a jet? These 3 seemingly unrelated questions are answered with this one common data structure- the `Octree`.
 
-![Octree Cover Photo](../public/img/Octree-cover.png)
+![Octree Cover Photo](../public/img/octree-cover.png)
 
 An `Octree` is a data structure used for efficient `spatial querying`. It is created by recursively dividing a 3D space into small cubes, which sit nested within each other. This way, each level of the `Octree` subdivides the space into 8 cubes.
 
