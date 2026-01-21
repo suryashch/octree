@@ -3,11 +3,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const colorMap = {
-    0: '#2133fe',
+    0: '#ffffff',
     1: '#E82C2C',
     2: '#42dc35',
     3: '#3FDCFB',
-    4: '#d7d4d4'
+    4: '#8f8c8c'
 };
 
 const mesh_pos = [3,3,3];
