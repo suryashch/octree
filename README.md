@@ -11,6 +11,8 @@ An Octree is a data structure is used for efficient spatial querying and is crea
 
 ![Octree Graphic](public/img/octree-schematic.png)
 
+Actions like clash detection, nearest neighbor calculation and raycasting break down when the number of objects in the scene becomes too large. An octree speeds this up by pruning entire areas of the scene, reducing the total number of calculations which need to be done. [The accompanying write-up](./reports/octree.md) explains this in-depth.
+
 Octrees are used widely in Game Development, Clash Detection, K-Nearest Neighbors Algorithms and many other fields.
 
 This demo serves to educate on the mechanics behind how an Octree works, and is intended to be a lightweight implementation that could potentially sit as a layer within larger 3D scenes.
