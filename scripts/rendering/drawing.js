@@ -1,43 +1,43 @@
 import * as THREE from 'three';
+import { isIntersecting } from '../utils/Intersection.js';
 
-export class OctreeRenderer {
-    constructor(scene, colorMap) {
-        this.scene = scene;
-        this.colorMap = colorMap;
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+const unitEdges = new THREE.EdgesGeometry(unitBox);
+
+export class OctreeVisualizer {
+    constructor(colorMap) {
+        this.group = new THREE.Group();
+        this.materials = Object.keys(colorMap).reduce((acc, level) => {
+            acc[level] = new THREE.LineBasicMaterial({ color: colorMap[level] });
+            return acc;
+        }, {});
     }
 
-    drawCube(bounds, color) {
-        const [x_l, x_r, y_t, y_b, z_f, z_b] = bounds;
-        const geometry = new THREE.BoxGeometry(
-            x_r - x_l,
-            y_t - y_b,
-            z_b - z_f
-        );
-        const edges = new THREE.EdgesGeometry(geometry);
-        const line = new THREE.LineSegments(
-            edges,
-            new THREE.LineBasicMaterial({ color })
-        );
-        line.position.set(
-            (x_l + x_r) / 2,
-            (y_b + y_t) / 2,
-            (z_f + z_b) / 2
-        );
-        this.scene.add(line);
+    update(pos, node, threshold) {
+        this.clear();
+        this._drawRecursive(pos, node, threshold, 0);
     }
 
-    render(octree, meshPos, threshold, level = 0) {
-        if (this.isIntersecting(meshPos, octree.bounds, threshold)) {
-            const color = this.colorMap[level % Object.keys(this.colorMap).length];
-            this.drawCube(octree.bounds, color);
-            
-            octree.children.forEach(child => {
-                this.render(child, meshPos, threshold, level + 1);
-            });
+    clear() {
+        while (this.group.children.length > 0) {
+            const child = this.group.children[0];
+            this.group.remove(child);
         }
     }
 
-    isIntersecting(meshPos, bounds, threshold) {
-        
+    _drawRecursive(pos, node, threshold, level) {
+        if (!node || !isIntersecting(pos, node.bounds, threshold)) return;
+
+        const [xl, xr, yt, yb, zf, zb] = node.bounds;
+        const w = xr - xl, h = yt - yb, d = zb - zf;
+
+        const line = new THREE.LineSegments(unitEdges, this.materials[level]);
+        line.scale.set(w, h, d);
+        line.position.set(xl + w/2, yb + h/2, zf + d/2);
+        this.group.add(line);
+
+        for (const child of node.children) {
+            this._drawRecursive(pos, child, threshold, level + 1);
+        }
     }
 }

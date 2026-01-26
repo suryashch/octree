@@ -11,7 +11,6 @@ export function makeOctree(bounds, depth) {
         children: []
     };
 
-    // Subdivide into 8 octants
     const childBounds = [
         [x_l, midX, midY, y_b, z_f, midZ], [midX, x_r, midY, y_b, z_f, midZ],
         [x_l, midX, y_t, midY, z_f, midZ], [midX, x_r, y_t, midY, z_f, midZ],
