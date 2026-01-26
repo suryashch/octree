@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { isIntersecting } from './utils/intersection.js';
+import { makeOctree } from './octree/octree.js';
 
 const colorMap = {
     0: '#ffffff',
@@ -41,56 +43,8 @@ function drawCube( bounds, color ) {
         color: color
     }) );
     line.position.set(  x_l + (x_r-x_l)/2, y_b + (y_t-y_b)/2, z_f + (z_b-z_f)/2 );
-    scene.add( line );
+    // scene.add( line );
 };
-
-function makeOctree( x_l, x_r, y_t, y_b, z_f, z_b, depth ) {
-    const octree = new Map()
-
-    if (depth === 0){
-        return octree;
-
-    } else {
-        octree.set("bounds", [x_l, x_r, y_t, y_b, z_f, z_b]);
-
-        octree.set(0, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(1, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(2, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(3, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(4, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(5, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(6, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(7, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
-    }
-
-    return octree
-};
-
-function isIntersecting( mesh_pos, bounds,threshold ){
-    const [ camera_x, camera_y, camera_z ] = mesh_pos
-    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
-
-    let closest_x = 0
-    let closest_y = 0
-    let closest_z = 0
-
-    if ((x_l < camera_x) && (camera_x < x_r) && (y_b < camera_y) && (camera_y < y_t) && (z_b < camera_z) && (camera_z < z_b)){
-        return true
-
-    } else {
-        closest_x = Math.max(x_l, Math.min(camera_x, x_r))
-        closest_y = Math.max(y_b, Math.min(camera_y, y_t))
-        closest_z = Math.max(z_f, Math.min(camera_z, z_b))
-    }
-
-    const curr_dist = (closest_x - camera_x)**2 + (closest_y - camera_y)**2 + (closest_z - camera_z)**2
-
-    if (curr_dist < threshold**2){
-        return true
-    } else {
-        return false
-    }
-}
 
 function drawOctree( mesh_pos, o_tree, threshold, colorMap, level=0 ){
     
@@ -196,6 +150,15 @@ controls.autoRotate=false;
 controls.target = new THREE.Vector3(3.2,2,5.4);
 controls.update()
 
+const geom = new THREE.BoxGeometry(10,10,10);
+const edgeGeom = new THREE.EdgesGeometry(geom);
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+const cubeEdges = new THREE.LineSegments(edgeGeom, lineMaterial)
+
+const instancedCube = new THREE.InstancedMesh({geometry: cubeEdges, count: 3})
+
+// scene.add(instancedCube)
+
 const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
 light_2.position.set(10,10,10)
 scene.add(light_2);
@@ -207,29 +170,29 @@ loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
     scene.add(mesh);
 })
 
-xSlider.addEventListener('input', (e) => {
-    mesh_pos[0] = parseFloat(e.target.value);
-    xValue.textContent = mesh_pos[0].toFixed(1);
-    updateVisualization();
-});
+// xSlider.addEventListener('input', (e) => {
+//     mesh_pos[0] = parseFloat(e.target.value);
+//     xValue.textContent = mesh_pos[0].toFixed(1);
+//     updateVisualization();
+// });
 
-ySlider.addEventListener('input', (e) => {
-    mesh_pos[2] = parseFloat(e.target.value);
-    yValue.textContent = mesh_pos[2].toFixed(1);
-    updateVisualization();
-});
+// ySlider.addEventListener('input', (e) => {
+//     mesh_pos[2] = parseFloat(e.target.value);
+//     yValue.textContent = mesh_pos[2].toFixed(1);
+//     updateVisualization();
+// });
 
-zSlider.addEventListener('input', (e) => {
-    mesh_pos[1] = parseFloat(e.target.value);
-    zValue.textContent = mesh_pos[1].toFixed(1);
-    updateVisualization();
-});
+// zSlider.addEventListener('input', (e) => {
+//     mesh_pos[1] = parseFloat(e.target.value);
+//     zValue.textContent = mesh_pos[1].toFixed(1);
+//     updateVisualization();
+// });
 
-rSlider.addEventListener('input', (e) => {
-    radius = parseFloat(e.target.value);
-    rValue.textContent = radius;
-    updateVisualization();
-});
+// rSlider.addEventListener('input', (e) => {
+//     radius = parseFloat(e.target.value);
+//     rValue.textContent = radius;
+//     updateVisualization();
+// });
 
 function animate() {
     requestAnimationFrame(animate);
