@@ -8,11 +8,11 @@ An `Octree` is used for efficient `spatial querying` and is created by recursive
 
 ![Octree Schematic (1)](../public/img/octree-schematic.png)
 
-Usage of an `Octree` has been shown to improve Time Complexity from O(n) runtime to O(log n). Fundamentally, this means that increasing the data size by a factor of 100, will only increase the runtime by a factor of log(100) ~= 4.6.
+Usage of an `Octree` has been shown to improve Time Complexity from O(n) runtime to O(log n). Fundamentally, this means that increasing the data size by a factor of 100, will only increase the runtime by a factor of log(100) ~= 4.6. For implementing logical operations in large scenes, the `Octree` serves as a quintessential tool.
 
 `Octrees` are used widely in game development, `Nearest-Neighbor` algorithms, and Finite Element Analysis in CAD. Let's dive a little deeper into how they work.
 
-## What is an Octree
+## What is an Octree?
 
 An `Octree` is a special type of `k-D` Tree where the number of dimensions `k` = 3. It is constructed by repeatedly subdividing a 3D space into cubes. Each node of the `Octree` contains 8 children- which refers to the 8 sub-cubes that sit within a larger cube.
 
@@ -20,7 +20,7 @@ An `Octree` is a special type of `k-D` Tree where the number of dimensions `k` =
 
 An important consideration here is that `Octrees` do not store any data themselves- they are just used to quickly query data in a space. An `Octree` is used to answer the question- "Which objects in my scene are physically close to my area of interest"? In Video Games, the Octree may be used for player - object interactions.
 
-Say our player has walked up to a treasure chest on the map and clicked the `A` button to open it. How do we find out exactly which treasure chest the player has clicked on? We could loop through the entire list of treasure chests on the map, calculate the distance between our player and every one, and find the one that's closest to where the player currently is. This is a valid approach, but as the number of treasure chests increase, we will find ourselves doing a lot of unnecessary calculations.
+Say our player has walked up to a treasure chest on the map and clicked the `A` button to open it. How do we find out exactly which treasure chest the player has clicked on? A naive approach would be to loop through the entire list of treasure chests, calculate the distance between our player and every one, and find the one that's closest to where the player currently is. This is a valid approach, but as the number of treasure chests increase, we will find ourselves doing a lot of unnecessary calculations.
 
 A better approach is to use an Octree. This method will significantly narrow down our search radius, thereby limiting the total number of distance calculations that we need to do, improving the performance of the game.
 
@@ -54,7 +54,7 @@ As we make our way down the levels of the `Octree`, the number of objects that m
 
 ![Octree Recalculation on Movement (3)](../public/img/octree-main-hi-res.gif)
 
-I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we simulated a large 3D scene using a Numpy array. To this 3D space we added 2000 objects, as well as a `camera location`, that would serve as the coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
+I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we create a large 3D scene using a Numpy array. To this 3D space we added 2000 objects, as well as a `camera location`, that would serve as the coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
 
 ![Octree Numpy Simulation](../public/img/octree-numpy-simulation.png)
 
