@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { isIntersecting } from '../utils/Intersection.js';
+import { isIntersecting } from '../utils/intersection.js';
 
 const unitBox = new THREE.BoxGeometry(1, 1, 1);
 const unitEdges = new THREE.EdgesGeometry(unitBox);
