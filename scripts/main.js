@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { makeOctree } from './octree/Octree.js';
-import { OctreeVisualizer } from './rendering/drawing.js';
-import { createScene } from './rendering/scene.js';
+import { OctreeVisualizer } from './rendering/Drawing.js';
+import { createScene } from './rendering/Scene.js';
 import { initControls } from './utils/Controls.js';
 
 const colorMap = {
