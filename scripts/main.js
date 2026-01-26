@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { isIntersecting } from './utils/intersection.js';
-import { makeOctree } from './octree/octree.js';
+import { isIntersecting } from './utils/Intersection.js';
+import { makeOctree } from './octree/Octree.js';
 
 const colorMap = {
     0: '#ffffff',
@@ -89,25 +89,25 @@ function drawCube(bounds, level) {
     octreeGroup.add(line);
 }
 
-function drawOctreeRecursive(pos, node, threshold, level = 0) {
+function drawOctree(pos, node, threshold, level = 0) {
     if (!node || !isIntersecting(pos, node.bounds, threshold)) return;
 
     drawCube(node.bounds, level);
 
     for (const child of node.children) {
-        drawOctreeRecursive(pos, child, threshold, level + 1);
+        drawOctree(pos, child, threshold, level + 1);
     }
 }
 scene.add(octreeGroup);
 
-drawOctreeRecursive(mesh_pos, ot, radius)
+drawOctree(mesh_pos, ot, radius)
 
 function updateVisualization() {
     while (octreeGroup.children.length > 0) {
         octreeGroup.remove(octreeGroup.children[0]);
     }
 
-    drawOctreeRecursive(mesh_pos, ot, radius);
+    drawOctree(mesh_pos, ot, radius);
     
     if (mesh) mesh.position.fromArray(mesh_pos);
 }
