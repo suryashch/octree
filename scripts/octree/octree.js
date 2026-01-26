@@ -1,22 +1,27 @@
-export function makeOctree( x_l, x_r, y_t, y_b, z_f, z_b, depth ) {
-    const octree = new Map()
+export function makeOctree(bounds, depth) {
+    if (depth === 0) return null;
 
-    if (depth === 0){
-        return octree;
+    const [x_l, x_r, y_t, y_b, z_f, z_b] = bounds;
+    const midX = (x_l + x_r) / 2;
+    const midY = (y_t + y_b) / 2;
+    const midZ = (z_f + z_b) / 2;
 
-    } else {
-        octree.set("bounds", [x_l, x_r, y_t, y_b, z_f, z_b]);
+    const node = {
+        bounds,
+        children: []
+    };
 
-        octree.set(0, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(1, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(2, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(3, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(4, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(5, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(6, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(7, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
+    // Subdivide into 8 octants
+    const childBounds = [
+        [x_l, midX, midY, y_b, z_f, midZ], [midX, x_r, midY, y_b, z_f, midZ],
+        [x_l, midX, y_t, midY, z_f, midZ], [midX, x_r, y_t, midY, z_f, midZ],
+        [x_l, midX, midY, y_b, midZ, z_b], [midX, x_r, midY, y_b, midZ, z_b],
+        [x_l, midX, y_t, midY, midZ, z_b], [midX, x_r, y_t, midY, midZ, z_b]
+    ];
+
+    for (let i = 0; i < 8; i++) {
+        node.children.push(makeOctree(childBounds[i], depth - 1));
     }
 
-    return octree
-};
-
+    return node;
+}
