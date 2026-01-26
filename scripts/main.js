@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { isIntersecting } from './utils/intersection.js';
+import { makeOctree } from './octree/octree.js';
 
 const colorMap = {
     0: '#ffffff',
@@ -11,8 +13,13 @@ const colorMap = {
 };
 
 const mesh_pos = [3,3,3];
+let input_bounds = [0,8,8,0,0,8];
+
+const ot = makeOctree(input_bounds, 5);
 
 let radius = 0.5;
+
+let mesh = null;
 
 const xSlider = document.getElementById('x-slider');
 const ySlider = document.getElementById('y-slider');
@@ -24,154 +31,7 @@ const yValue = document.getElementById('y-value');
 const zValue = document.getElementById('z-value');
 const rValue = document.getElementById('r-value')
 
-let mesh = null;
-
 const scene = new THREE.Scene();
-
-function drawCube( bounds, color ) {
-    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
-
-    const l = x_r - x_l;
-    const b = y_t - y_b;
-    const h = z_b - z_f;
-
-    const geometry = new THREE.BoxGeometry( l,b,h );
-    const edges = new THREE.EdgesGeometry( geometry );
-    const line = new THREE.LineSegments( edges, new THREE.MeshBasicMaterial({
-        color: color
-    }) );
-    line.position.set(  x_l + (x_r-x_l)/2, y_b + (y_t-y_b)/2, z_f + (z_b-z_f)/2 );
-    scene.add( line );
-};
-
-function makeOctree( x_l, x_r, y_t, y_b, z_f, z_b, depth ) {
-    const octree = new Map()
-
-    if (depth === 0){
-        return octree;
-
-    } else {
-        octree.set("bounds", [x_l, x_r, y_t, y_b, z_f, z_b]);
-
-        octree.set(0, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(1, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(2, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(3, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_f, z_b - (z_b - z_f)/2, depth-1));
-        octree.set(4, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(5, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t - (y_t - y_b)/2, y_b, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(6, makeOctree(x_l, x_r - (x_r - x_l)/2, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
-        octree.set(7, makeOctree(x_r - (x_r - x_l)/2, x_r, y_t, y_t - (y_t - y_b)/2, z_b - (z_b - z_f)/2, z_b, depth-1));
-    }
-
-    return octree
-};
-
-function isIntersecting( mesh_pos, bounds,threshold ){
-    const [ camera_x, camera_y, camera_z ] = mesh_pos
-    const [ x_l, x_r, y_t, y_b, z_f, z_b ] = bounds
-
-    let closest_x = 0
-    let closest_y = 0
-    let closest_z = 0
-
-    if ((x_l < camera_x) && (camera_x < x_r) && (y_b < camera_y) && (camera_y < y_t) && (z_b < camera_z) && (camera_z < z_b)){
-        return true
-
-    } else {
-        closest_x = Math.max(x_l, Math.min(camera_x, x_r))
-        closest_y = Math.max(y_b, Math.min(camera_y, y_t))
-        closest_z = Math.max(z_f, Math.min(camera_z, z_b))
-    }
-
-    const curr_dist = (closest_x - camera_x)**2 + (closest_y - camera_y)**2 + (closest_z - camera_z)**2
-
-    if (curr_dist < threshold**2){
-        return true
-    } else {
-        return false
-    }
-}
-
-function drawOctree( mesh_pos, o_tree, threshold, colorMap, level=0 ){
-    
-    if (isIntersecting(mesh_pos, o_tree.get("bounds"), threshold )){
-        
-        drawCube( o_tree.get("bounds"), colorMap[level]);
-        
-        if (o_tree.get(0).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(0), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        
-        if (o_tree.get(1).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(1), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-
-        if (o_tree.get(2).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(2), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        
-        if (o_tree.get(3).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(3), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        if (o_tree.get(4).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(4), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        if (o_tree.get(5).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(5), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        if (o_tree.get(6).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(6), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        if (o_tree.get(7).has("bounds")) {
-            drawOctree( mesh_pos, o_tree.get(7), threshold, colorMap, level+1);
-        } else {
-            return
-        }
-        
-    }
-}
-
-const ot = makeOctree( 0,8,8,0,0,8,5 )
-
-drawOctree(mesh_pos, ot, radius, colorMap);
-
-function clearOctreeVisuals() {
-    const objectsToRemove = [];
-    scene.children.forEach(child => {
-        if (child instanceof THREE.LineSegments) {
-            objectsToRemove.push(child);
-        }
-    });
-    objectsToRemove.forEach(obj => {
-        scene.remove(obj);
-        obj.geometry.dispose();
-        obj.material.dispose();
-    });
-}
-
-function updateVisualization() {
-    clearOctreeVisuals();
-
-    drawOctree(mesh_pos, ot, radius, colorMap);
-    
-    if (mesh) {
-        mesh.position.set(mesh_pos[0], mesh_pos[1], mesh_pos[2]);
-    }
-}
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -187,8 +47,8 @@ camera.position.set(15,12,-12);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = false;
-controls.enablePan = true;
-controls.minDistance=1;
+controls.enablePan = false;
+controls.minDistance=10;
 controls.maxDistance=25;
 controls.minPolarAngle=0.5;
 controls.maxPolarAngle=1.5;
@@ -196,9 +56,9 @@ controls.autoRotate=false;
 controls.target = new THREE.Vector3(3.2,2,5.4);
 controls.update()
 
-const light_2 = new THREE.HemisphereLight(0xffffff, 0.25);
-light_2.position.set(10,10,10)
-scene.add(light_2);
+const light_1 = new THREE.HemisphereLight(0xffffff, 0.25);
+light_1.position.set(10,10,10)
+scene.add(light_1);
 
 const loader = new GLTFLoader().setPath('public/models/');
 loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
@@ -206,6 +66,51 @@ loader.load('classic_roblox_rubber_duckie.glb', (gltf) => {
     mesh.position.set(3, 3, 3);
     scene.add(mesh);
 })
+
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+const unitEdges = new THREE.EdgesGeometry(unitBox);
+const sharedMaterials = Object.keys(colorMap).reduce((acc, level) => {
+    acc[level] = new THREE.LineBasicMaterial({ color: colorMap[level] });
+    return acc;
+}, {});
+
+const octreeGroup = new THREE.Group();
+
+function drawCube(bounds, level) {
+    const [x_l, x_r, y_t, y_b, z_f, z_b] = bounds;
+    const width = x_r - x_l;
+    const height = y_t - y_b;
+    const depth = z_b - z_f;
+
+    const line = new THREE.LineSegments(unitEdges, sharedMaterials[level]);
+    line.scale.set(width, height, depth);
+    line.position.set(x_l + width / 2, y_b + height / 2, z_f + depth / 2);
+    
+    octreeGroup.add(line);
+}
+
+function drawOctreeRecursive(pos, node, threshold, level = 0) {
+    if (!node || !isIntersecting(pos, node.bounds, threshold)) return;
+
+    drawCube(node.bounds, level);
+
+    for (const child of node.children) {
+        drawOctreeRecursive(pos, child, threshold, level + 1);
+    }
+}
+scene.add(octreeGroup);
+
+drawOctreeRecursive(mesh_pos, ot, radius)
+
+function updateVisualization() {
+    while (octreeGroup.children.length > 0) {
+        octreeGroup.remove(octreeGroup.children[0]);
+    }
+
+    drawOctreeRecursive(mesh_pos, ot, radius);
+    
+    if (mesh) mesh.position.fromArray(mesh_pos);
+}
 
 xSlider.addEventListener('input', (e) => {
     mesh_pos[0] = parseFloat(e.target.value);

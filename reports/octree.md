@@ -4,25 +4,27 @@ How are modern video games able to render vast worlds, with crystal clear graphi
 
 ![Octree Cover Photo](../public/img/octree-cover.png)
 
-An `Octree` is a data structure used for efficient `spatial querying`. It is created by recursively dividing a 3D space into small cubes, which sit nested within each other. This way, each level of the `Octree` subdivides the space into 8 cubes.
-
-![Octree Nested Diagram](../public/img/octree-nested-structure-diagram.png)
-
-Usage of an `Octree` has been shown to improve Time Complexity from O(n) runtime to O(log n). Fundamentally, this means that increasing the data size by a factor of 100, will only increase the runtime by a factor of log(100) ~= 4.6.
-
-`Octrees` are used widely in game development, `Nearest-Neighbor` algorithms, and Finite Element Analysis in CAD. Let's dive a little deeper into how they work.
-
-## What is an Octree
-
-An `Octree` is a special type of `k-D` Tree where the number of dimensions `k` = 3. It is constructed by repeatedly subdividing a 3D space into cubes. Each node of the `Octree` contains 8 children- which refers to the 8 sub-cubes that sit within a larger cube.
+An `Octree` is used for efficient `spatial querying` and is created by recursively dividing a 3D space into 8 cubes. These 8 cubes can be thought of as children of a parent node, and each also contain 8 children of their own.
 
 ![Octree Schematic (1)](../public/img/octree-schematic.png)
 
-An important consideration here is that `octrees` do not store any data themselves- they are just used to quickly query data in a space. An Octree is used to answer the question- "Which objects in my scene are physically close to my area of interest"? In Video Games, the Octree may be used for player - object interactions.
+Usage of an `Octree` has been shown to improve Time Complexity from O(n) runtime to O(log n). Fundamentally, this means that increasing the data size by a factor of 100, will only increase the runtime by a factor of log(100) ~= 4.6. For implementing logical operations in large scenes, the `Octree` serves as a quintessential tool.
 
-Say our player has walked up to a treasure chest on the map and clicked the `A` button to open it. Now instead of searching through every treasure chest in the game to determine which one the player clicked on, we use an `Octree` to discard entire segments of the map and narrow our search down to only the specific segment which the player is closest to; vastly improving the performance.
+`Octrees` are used widely in game development, `Nearest-Neighbor` algorithms, and Finite Element Analysis in CAD. Let's dive a little deeper into how they work.
 
-![Octree Game map example](../public/img/octree-game-map-example.png)
+## What is an Octree?
+
+An `Octree` is a special type of `k-D` Tree where the number of dimensions `k` = 3. It is constructed by repeatedly subdividing a 3D space into cubes. Each node of the `Octree` contains 8 children- which refers to the 8 sub-cubes that sit within a larger cube.
+
+![Octree Nested Diagram](../public/img/octree-nested-structure-diagram.png)
+
+An important consideration here is that `Octrees` do not store any data themselves- they are just used to quickly query data in a space. An `Octree` is used to answer the question- "Which objects in my scene are physically close to my area of interest"? In Video Games, the Octree may be used for player - object interactions.
+
+Say our player has walked up to a treasure chest on the map and clicked the `A` button to open it. How do we find out exactly which treasure chest the player has clicked on? A naive approach would be to loop through the entire list of treasure chests, calculate the distance between our player and every one, and find the one that's closest to where the player currently is. This is a valid approach, but as the number of treasure chests increase, we will find ourselves doing a lot of unnecessary calculations.
+
+A better approach is to use an Octree. This method will significantly narrow down our search radius, thereby limiting the total number of distance calculations that we need to do, improving the performance of the game.
+
+![Octrees help us discard entire segments of the map](../public/img/octree-game-map-example.png)
 
 Spatial querying can also be used in `Nearest Neighbor` algorithms, where the goal is to find the `N` closest data points in a group. Using an `Octree` (or `k-D` tree, more generally), will reduce the total number of objects that the algorithm needs to search through- significantly speeding up prediction time.
 
@@ -32,15 +34,15 @@ Let's work through an example that highlights this use case.
 
 ## Example: Finding the Closest Objects in a Search Radius
 
-In 3D game engines, a common optimization technique is called Level of Detail (`LOD`) swapping. This process involves rendering objects that are far away from the player in low-resolution, and dynamically changing them to high-res when the player is near. This type of optimization has been shown to [improve the performance of the scene by roughly 3x](https://github.com/suryashch/LOD-control-with-threeJS/blob/main/reports/3d-model-LOD.md).
+In 3D game engines, a common optimization technique is called Level of Detail (`LOD`) swapping. This process involves rendering objects that are far away from the player in low-resolution, and dynamically changing them to high-res when the player is near.
 
 ![LOD Control Model](../public/img/first-working-lod-model.gif)
 
-One downside to this technique is that our engine needs to calculate the distance between our player and every object in our scene. For large scenes, this may be impractical, and significantly hinder the performance.
+One downside is that our engine is calculating the distance between our camera and every object in our scene. For large scenes, this may be impractical, and significantly hinder the performance. We can see the number of objects present in a scene at any time on a frame-by-frame basis in the gif below.
 
-![Gameplay Example](../public/img/gameplay-gif.gif)
+![Gameplay Example- All these objects are being constantly LOD swapped- and these are just the currently visible ones!](../public/img/gameplay-gif.gif)
 
-We can use an `Octree` to speed things up. Since we know the player's current position in the world, we divide the 3D space into 8 cubes. Now, we measure the distance between our player and each one of these cubes. If the distance between a cube is too large, we can immediately discard all the objects in that entire cube. This method is called `pruning`, and as can be seen below, removes most of the objects in our scene.
+We can use an `Octree` to speed things up. Since we know the player's current position in the world, we divide the 3D space into 8 cubes. Now, we measure the distance between our player and each one of these cubes. If the distance between a cube is too large, we can **immediately discard all the objects in that entire cube**. This method is called `pruning`, and as can be seen below, removes most of the objects in our scene.
 
 ![L1 Octree splitting](../public/img/Octree-splitting-l1.png)
 
@@ -52,7 +54,7 @@ As we make our way down the levels of the `Octree`, the number of objects that m
 
 ![Octree Recalculation on Movement (3)](../public/img/octree-main-hi-res.gif)
 
-I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we simulated a large 3D scene using a Numpy array. To this 3D space we added 2000 objects, as well as a `camera location`, that would serve as the coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
+I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we create a large 3D scene using a Numpy array. To this 3D space we added 2000 objects, as well as a `camera location`, that would serve as the coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
 
 ![Octree Numpy Simulation](../public/img/octree-numpy-simulation.png)
 
