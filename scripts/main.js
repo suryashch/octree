@@ -4,6 +4,7 @@ import { makeOctree } from './octree/octree.js';
 import { OctreeVisualizer } from './rendering/drawing.js';
 import { createScene } from './rendering/scene.js';
 import { initControls } from './utils/controls.js';
+import { PerformanceMonitor } from './utils/performancemonitor.js';
 
 const colorMap = {
     0: '#ffffff',
@@ -18,6 +19,8 @@ const state = {
     mesh_pos: [3,3,3]
 };
 
+// const perfMonitor = new PerformanceMonitor()
+
 let input_bounds = [0,8,8,0,0,8];
 let mesh = null;
 
@@ -26,7 +29,6 @@ const { scene, camera, renderer, controls } = createScene();
 const visualizer = new OctreeVisualizer(colorMap);
 scene.add(visualizer.group);
 const ot = makeOctree(input_bounds, 5);
-
 
 document.body.appendChild(renderer.domElement);
 
@@ -54,6 +56,8 @@ function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
+
+    // perfMonitor.update(renderer, scene);
 };
 
 animate();
