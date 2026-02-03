@@ -18,42 +18,42 @@
         </script>
     </head>
 <body>
-  <div id="heading">
-    <h1>Octree</h1>
-    <div class="border">
-        <div id="controls">
+    <h1 class="ui-panel top-left">Octree</h1>
+    
+    <div id="controls" class="ui-panel bottom-left">
         <h3>Mesh Position</h3>
         <div class="slider-group">
             <label for="x-slider">X: <span class="value" id="x-value">3.0</span></label>
             <input type="range" id="x-slider" min="0" max="8" step="0.1" value="3">
         </div>
+    
+
         <div class="slider-group">
             <label for="y-slider">Y: <span class="value" id="y-value">3.0</span></label>
             <input type="range" id="y-slider" min="0" max="8" step="0.1" value="3">
         </div>
+
         <div class="slider-group">
             <label for="z-slider">Z: <span class="value" id="z-value">3.0</span></label>
             <input type="range" id="z-slider" min="0" max="8" step="0.1" value="3">
         </div>
+
         <div class="slider-group">
             <label for="r-slider">R: <span class="value" id="r-value">0.5</span></label>
             <input type="range" id="r-slider" min="0.5" max="2" step="0.1" value="0.5">
         </div>
     </div>
-    </div>
-     <div class="border">
-        <div id="social-links">
-            <hr> <div class="link-group">
-                <a href="https://github.com/suryashch/octree/blob/main/reports/octree.md" target="_blank" rel="noopener">What is an Octree?</a>
-                <a href="https://github.com/suryashch/octree" target="_blank" rel="noopener">
-                    <i class="fa-brands fa-github"></i>
-                </a>
-            </div>
-        </div>
-        </div>
 
+    <div id="social-links" class="ui-panel bottom-right">
+        <div class="link-group">
+            <a href="https://github.com/suryashch/octree/blob/main/reports/octree.md" target="_blank" rel="noopener">What is an Octree?</a>
+            <a href="https://github.com/suryashch/octree" target="_blank" rel="noopener">
+                <i class="fa-brands fa-github"></i>
+            </a>
+        </div>
     </div>
-  </div>
-  <script type="module" src="./scripts/main.js"></script>
+    
+
+    <script type="module" src="./scripts/main.js"></script>
 </body>
 </html>
