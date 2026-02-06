@@ -1,5 +1,11 @@
 # The Octree
 
+tl:dr
+
+A tree data structure that recursively divides 3D space into cubes, each nested within each other. It reduces time complexity of a spatial search algorithm from O(n) to O(log n). Used in video game engines, clash detection in physics simulations, and general object tracking in 3D space.
+
+## Introduction
+
 How are modern video games able to render vast worlds, with crystal clear graphics? How does YouTube know your watch preferences- often better than you do? And how do engineers model precise airflow over complex wing shapes on a jet? These 3 seemingly unrelated questions are answered with this one common data structure- the `Octree`.
 
 ![Octree Cover Photo](../public/img/octree-cover.png)
@@ -22,7 +28,7 @@ An important consideration here is that `Octrees` do not store any data themselv
 
 Say our player has walked up to a treasure chest on the map and clicked the `A` button to open it. How do we find out exactly which treasure chest the player has clicked on? A naive approach would be to loop through the entire list of treasure chests, calculate the distance between our player and every one, and find the one that's closest to where the player currently is. This is a valid approach, but as the number of treasure chests increase, we will find ourselves doing a lot of unnecessary calculations.
 
-A better approach is to use an Octree. This method will significantly narrow down our search radius, thereby limiting the total number of distance calculations that we need to do, improving the performance of the game.
+A better option is to use an Octree. This method will significantly narrow down our search radius, thereby limiting the total number of distance calculations that we need to do, improving the performance of the game.
 
 ![Octrees help us discard entire segments of the map](../public/img/octree-game-map-example.png)
 
@@ -38,7 +44,7 @@ In 3D game engines, a common optimization technique is called Level of Detail (`
 
 ![LOD Control Model](../public/img/first-working-lod-model.gif)
 
-One downside is that our engine is calculating the distance between our camera and every object in our scene. For large scenes, this may be impractical, and significantly hinder the performance. We can see the number of objects present in a scene at any time on a frame-by-frame basis in the gif below.
+One downside is that our engine is calculating the distance between the camera and every object in our scene. For large scenes, this may be impractical, and significantly hinder the performance. We can see the number of objects present in a scene at any time on a frame-by-frame basis in the gif below.
 
 ![Gameplay Example- All these objects are being constantly LOD swapped- and these are just the currently visible ones!](../public/img/gameplay-gif.gif)
 
@@ -48,13 +54,13 @@ We can use an `Octree` to speed things up. Since we know the player's current po
 
 If the cube meets our distance criteria, we divide it into a further 8 cubes and run our distance test again. This will eliminate another group of objects from our search set.
 
-![L1 Octree splitting](../public/img/octree-splitting-l2.png)
+![L2 Octree splitting](../public/img/octree-splitting-l2.png)
 
 As we make our way down the levels of the `Octree`, the number of objects that meet our distance criteria continuously reduce, and eventually we're left with an extremely small subset of the original data points. Now when we call our `LOD` swapping function, we only need to calculate the distance between our player and this subset of objects- a significant computational saving.
 
 ![Octree Recalculation on Movement (3)](../public/img/octree-main-hi-res.gif)
 
-I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we create a large 3D scene using a Numpy array. To this 3D space we added 2000 objects, as well as a `camera location`, that would serve as the coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
+I simulated some data to show the effects. [In this example](https://github.com/suryashch/3d_modelling/blob/main/research/optimizing-the-scene/notebooks/octree-querying.ipynb), we create a large 3D space using a Numpy array. Each point in the array can be thought of as points in space. To this 3D space we randomly added 2000 objects, as well as a `camera location`, that would serve as the current coordinates of our player. We then generated the `Octree` search algorithm using recursion, as well as a function to draw the individual boxes. Here are the results.
 
 ![Octree Numpy Simulation](../public/img/octree-numpy-simulation.png)
 
@@ -71,7 +77,7 @@ As our player moves around the scene, the `octree` is recalculated each frame an
 
 ## Other Use Cases
 
-There are strong parallels between `spatial querying` data structures and classification algorithms. The `K-Nearest Neighbor` algorithm makes predictions by comparing new data with examples in the training set that have similar features. This process involves measuring the similarities between our new data and every other data point in the training set.
+There are strong parallels between `spatial querying` data structures and classification algorithms. The `K-Nearest Neighbor` algorithm makes predictions by comparing new data with examples in the training set that have similar features. This process involves measuring the similarities between our new data and every other data point in the space.
 
 Using a `k-D` tree (where `k` matches the number of dimensions) to perform the search significantly speeds things up.
 
