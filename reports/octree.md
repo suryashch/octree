@@ -1,10 +1,7 @@
 # The Octree
 
-tl:dr
-
-A tree data structure that recursively divides 3D space into cubes, each nested within each other. It reduces time complexity of a spatial search algorithm from O(n) to O(log n). Used in video game engines, clash detection in physics simulations, and general object tracking in 3D space.
-
-## Introduction
+>>TL:DR
+>>A tree data structure that recursively divides 3D space into cubes, each nested within each other. It reduces time complexity of a spatial search algorithm from O(n) to O(log n). Used in video game engines, clash detection in physics simulations, and general object tracking in 3D space.
 
 How are modern video games able to render vast worlds, with crystal clear graphics? How does YouTube know your watch preferences- often better than you do? And how do engineers model precise airflow over complex wing shapes on a jet? These 3 seemingly unrelated questions are answered with this one common data structure- the `Octree`.
 
