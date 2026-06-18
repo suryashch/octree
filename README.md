@@ -1,6 +1,6 @@
 # Octree
 
-A lightweight visualizer for an Octree spatial querying system. [View the visualizer here](https://suryashch.github.io/octree/).
+A lightweight visualizer of an Octree spatial querying system. [View the visualizer here](https://suryashch.github.io/octree/).
 
 ![Octree Visualizer Hi-Res](public/img/octree-main-hi-res.gif)
 
